@@ -6,7 +6,7 @@ import numpy as np
 import os
 
 # scipy.misc.imread is deprecated, so use imageio.imread
-from imageio import imread
+from scipy.misc import imread
 import platform
 
 def load_pickle(f):

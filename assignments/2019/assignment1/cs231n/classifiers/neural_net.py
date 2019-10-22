@@ -80,7 +80,11 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        hidden_layer = np.maximum(0, np.dot(X,W1) + b1)
+        scores = np.dot(hidden_layer, W2) + b2
+        
+        exp_scores = np.exp(scores)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -97,8 +101,18 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        
+        # avg cross-entropy loss
+#         print("Probs:\n")
+#         print(probs)
+        correct_logprobs = -np.log(probs[range(N),y])
+#         print("Correct_logprobs:\n")
+#         print(correct_logprobs)
+        data_loss = np.mean(correct_logprobs)
+        reg_loss = reg*np.sum(W1*W1) + reg*np.sum(W2*W2)
+        loss = np.sum(correct_logprobs)/N + reg_loss
+#         print('loss:')
+#         print(loss)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -110,8 +124,29 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        
+        dscores = probs
+        dscores[range(N),y] -= 1
+        dscores /= N
+        
+        grads['W2'] = hidden_layer.T.dot(dscores)
+        grads['b2'] = np.sum(dscores, axis=0)
+        
+        dhidden = np.dot(dscores, W2.T)
+        dhidden[hidden_layer <= 0] = 0
+        
+        grads['W1'] = np.dot(X.T, dhidden)
+        grads['b1'] = np.sum(dhidden, axis=0)
+        
+        # add reg
+        grads['W2'] += 2 * reg * W2
+        grads['W1'] += 2 * reg * W1
+        
+#         print('dscores:')
+#         print(dscores)
+        
+#         print('grads[W2]:')
+#         print(grads['W2'])
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -156,7 +191,9 @@ class TwoLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            rnd_mask = np.random.choice(num_train, num_train if num_train < batch_size else batch_size, replace=False)
+            X_batch = X[rnd_mask]
+            y_batch = y[rnd_mask]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -172,7 +209,11 @@ class TwoLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            self.params['W2'] += -learning_rate * grads['W2']
+#             self.params['b2'] += -learning_rate * grads['b2']
+            
+            self.params['W1'] += -learning_rate * grads['W1']
+            self.params['b1'] += -learning_rate * grads['b1']
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -217,8 +258,17 @@ class TwoLayerNet(object):
         # TODO: Implement this function; it should be VERY simple!                #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        
+        hidden_layer = lambda x: np.maximum(0, np.dot(x, self.params['W1']) + self.params['b1'])
+        scores = lambda x: np.dot(hidden_layer(x), self.params['W2']) + self.params['b2']
 
-        pass
+        y_pred = [np.argmax(scores(x)) for x in X]
+#         y_pred = []
+#         for x in X:
+#             hidden = np.maximum(0, np.dot(x, self.params['W1']) + self.params['b1'])
+#             scores = np.dot(hidden, self.params['W2']) + self.params['b2']
+#             amax = np.argmax(scores)
+#             y_pred.append(amax)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
