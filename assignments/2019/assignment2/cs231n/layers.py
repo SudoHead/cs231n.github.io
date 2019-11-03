@@ -27,8 +27,23 @@ def affine_forward(x, w, b):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
-
+#     s = x.shape
+#     print ("x shape =", s)
+    
+    
+#     print ("///////")
+#     print("x.shape[0]:", x.shape[0])
+    M = w.shape[0]
+    N = x.shape[0]
+    T = x.reshape(N, M)
+    
+#     print("T.shape = ", T.shape)
+#     print(T)
+        
+    out = T.dot(w) + b
+    
+#     print('out = ',out)
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -59,8 +74,19 @@ def affine_backward(dout, cache):
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    
+    M = w.shape[0]
+    N = x.shape[0]
+    T = x.reshape(N, M)
+    
+    dw = T.T.dot(dout)
+    
+    dx = dout.dot(w.T)
+    dx = dx.reshape(x.shape)
+    
+    db = np.sum(dout, axis=0)
+    
+#     print(T)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -85,8 +111,11 @@ def relu_forward(x):
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    
+#     print (x)
+    out = np.maximum(0, x)
+#     print('MAXIMUM(0,x)')
+#     print (out)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -113,7 +142,7 @@ def relu_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    dx = dout * (x > 0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -192,7 +221,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # might prove to be helpful.                                          #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        
+#         m = mean of x
+#         v = variance of x
+#         x_norm = (x-m)/std   # std = √(v+esp)
+#         scaled = gamma * x_norm + beta 
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
